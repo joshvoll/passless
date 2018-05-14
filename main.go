@@ -41,10 +41,12 @@ func init() {
 	config.jwtKey = []byte(env("JWT_KEY", "super-duper-secret-key"))
 	smtpHost := env("SMTP_HOST", "smtp.mailtrap.io")
 	config.smtpAdress = net.JoinHostPort(smtpHost, env("SMTP_HOST", "25"))
+
 	smtpUsername, ok := os.LookupEnv("SMTP_USERNAME")
 	if !ok {
 		log.Fatalln("could not find SMTP_USERNAME on environment variables")
 	}
+
 	smtpPassword, ok := os.LookupEnv("SMTP_PASSWORD")
 	if !ok {
 		log.Fatalln("could not find SMTP_PASSWORD on environment variables")
@@ -82,13 +84,23 @@ func main() {
 	}
 	// creating the router
 	router := way.NewRouter()
+	router.HandleFunc("POST", "/api/users", jsonRequired(createUser))
 	router.HandleFunc("POST", "/api/passless/start", jsonRequired(passlessStart))
 	router.HandleFunc("GET", "/api/passless/verify_redirect", passlessVerifyRedirect)
+	router.Handle("GET", "/api/auth_user", guard(getAuthUser))
 
 	addr := fmt.Sprintf(":%d", config.port)
 	log.Printf("Starting server at %s 🚀 \n", config.appURL)
 	log.Fatalf("could not start the server: %v \n", http.ListenAndServe(addr, router))
 
+}
+
+func createUser(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
+}
+
+func getAuthUser(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, http.StatusText(http.StatusNotImplemented), http.StatusNotImplemented)
 }
 
 func passlessStart(w http.ResponseWriter, r *http.Request) {
@@ -140,4 +152,10 @@ func respondInternalError(w http.ResponseWriter, err error) {
 	log.Println(err)
 	respondJSON(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	return
+}
+
+func guard(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		next(w, r)
+	}
 }
