@@ -6,3 +6,10 @@ POST /api/passwordless/start
     "redirecturi":"http://localhost:3000/api/passwordless/verify_redirect"
 }
 
+http://localhost:3000
+POST /api/users
+{
+    "email": "cindy@hotmail.com",
+    "username": "cin"
+}
+
