@@ -3,7 +3,7 @@ http://localhost:3000
 POST /api/passwordless/start
 {
     "email": "jrodriguez@sanservices.hn",
-    "redirecturi":"http://localhost:3000/api/passwordless/verify_redirect"
+    "redirect_uri":"http://localhost:3000/api/passwordless/verify_redirect"
 }
 
 http://localhost:3000

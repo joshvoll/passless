@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -76,4 +77,18 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 	// response the payload
 	respond(w, user, http.StatusCreated)
+}
+
+func fetchUser(ctx context.Context, id string) (User, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	user := User{ID: id}
+	err := db.QueryRowContext(ctx, `
+		SELET emai, username FROM users WHERE id = $1
+	`, id).Scan(&user.Email, &user.UserName)
+
+	user.ID = id
+	return user, err
 }

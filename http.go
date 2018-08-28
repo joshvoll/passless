@@ -7,6 +7,21 @@ import (
 	"strings"
 )
 
+// SPAFileSystem struct definition
+type SPAFileSystem struct {
+	fs http.FileSystem
+}
+
+// Open imeplentation of the structure
+func (spa SPAFileSystem) Open(name string) (http.File, error) {
+	file, err := spa.fs.Open(name)
+	if err != nil {
+		return spa.fs.Open("index.html")
+	}
+
+	return file, err
+}
+
 // requireJSON GET: http => validate json => http respond
 func requireJSON(next http.HandlerFunc) http.HandlerFunc {
 	// return the handler

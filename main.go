@@ -34,7 +34,8 @@ func init() {
 
 	// configuration of the local db, port, url, smtp, username, password, jwt key, smtp address
 	config.port, _ = strconv.Atoi(env("PORT", "8080"))
-	config.appURL, _ = url.Parse(env("APP_URL", "http://localhost:"+strconv.Itoa(config.port)+"/"))
+	puerto := 3000
+	config.appURL, _ = url.Parse(env("APP_URL", fmt.Sprintf("http://localhost:%d/", puerto)))
 	config.databaseURL = env("DATABASE_URL", "postgresql://root@127.0.0.1:26257/passwordless_demo?sslmode=disable")
 	config.jwtKey = []byte(env("JWT_KEY", "super-duper-secret-key"))
 	smtpHost := env("SMPT_HOST", "smtp.mailtrap.io")
@@ -65,6 +66,8 @@ func env(key, fallbackValue string) string {
 var db *sql.DB
 
 func main() {
+
+	fmt.Println(*config.appURL)
 	// get the connection to cacroach db
 	var err error
 	if db, err = sql.Open("postgres", config.databaseURL); err != nil {
@@ -82,6 +85,8 @@ func main() {
 	router.HandleFunc("POST", "/api/users", requireJSON(createUser))
 	router.HandleFunc("POST", "/api/passwordless/start", requireJSON(passwordLessStart))
 	router.HandleFunc("GET", "/api/passwordless/verify_redirect", passwordlessVerifyRedirect)
+	router.HandleFunc("GET", "/api/auth_user", guard(getAuthUser))
+	router.Handle("GET", "/...", http.FileServer(SPAFileSystem{http.Dir("static")}))
 
 	// run the server
 	port := 3000
